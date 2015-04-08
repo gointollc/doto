@@ -1,0 +1,23 @@
+#profile-tabs button { margin-right: 5px !important; }
+#profile-detail {
+    width: 100%;
+    /*margin-top: 60px;*/
+}
+.list-group-item-text.options i {
+    padding: 5px;
+}
+#profile-tasks {}
+#task-list {}
+#task-list li {}
+#task-list li a {
+    width: 100%;
+}
+#task-list li a span {
+    margin-left: 15px;
+}
+#profile-top .message {
+    padding: 15px;
+}
+
+/* helper classes */
+.bottom-15 { margin-bottom: 15px; }
