@@ -1,5 +1,5 @@
 from doto.models import Profile, Task
-from doto.mixins import JSONResponseMixin
+from doto.utils import JSONResponseMixin
 from django.core.exceptions import ValidationError
 from django.views.generic import View
 
@@ -17,7 +17,7 @@ class ProfileView(JSONResponseMixin, View):
             objs = Profile.objects.filter(profile_id = kwargs.get('profile_id'))
         else:
             objs = Profile.objects.all()
-        return self.render_to_json_response({'objects': objs, })
+        return self.render_to_json_response({'object_name': 'profile', 'objects': objs, })
 
     def post(self, request, *args, **kwargs):
         """ Save a profile """
@@ -30,15 +30,13 @@ class ProfileView(JSONResponseMixin, View):
             p = Profile.objects.get(profile_id = request.POST.get('profile_id'))
             p.name = request.POST.get('name')
             p.email = request.POST.get('email')
-            p.save()
-            return self.render_to_json_response({})
         else:
             p = Profile(
                 name = request.POST.get('name'),
                 email = request.POST.get('email')
             )
-            p.save()
-            return self.render_to_json_response({})
+        p.save()
+        return self.render_to_json_response({})
 
 class TaskView(JSONResponseMixin, View):
     model = Task
@@ -53,5 +51,31 @@ class TaskView(JSONResponseMixin, View):
             objs = Task.objects.filter(profile_id = request.GET.get('profile_id'))
         else:
             objs = Task.objects.all()
-        return self.render_to_json_response({'objects': objs, })
+        return self.render_to_json_response({'object_name': 'task', 'objects': objs, })
+
+    def post(self, request, *args, **kwargs):
+        """ Save a task """
+        print('POST: %s', request.POST)
+        if not request.POST.get('task-profile-id'):
+            raise ValidationError('Profile not selected.  This should not happen.')
+        elif not request.POST.get('task-name'):
+            raise ValidationError('Task name is required.')
+        elif request.POST.get('task-id'):
+            p = Profile.objects.get(profile_id = request.POST.get('task-profile-id'))
+            t = Task.objects.get(task_id = request.POST.get('task-id'))
+            t.name = request.POST.get('task-name')
+            t.details = request.POST.get('task-details')
+            t.deadline = request.POST.get(task-'deadline')
+            t.profile = p
+        else:
+            print('adding new task!')
+            p = Profile.objects.get(profile_id = request.POST.get('task-profile-id'))
+            t = Task(
+                name = request.POST.get('task-name'),
+                details = request.POST.get('task-details'),
+                deadline = request.POST.get('task-deadline'),
+                profile = p,
+            )
+        t.save()
+        return self.render_to_json_response({})
 

@@ -21,3 +21,8 @@
 
 /* helper classes */
 .bottom-15 { margin-bottom: 15px; }
+.bg-danger,
+.bg-warning,
+.bg-info,
+.bg-success,
+.bg-primary { padding: 10px; }

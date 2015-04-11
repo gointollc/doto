@@ -18,6 +18,8 @@
 </head>
 <body>
 
+    <noscript class="error">Javascript needs to be enabled for doto to work.  Please upgrade your browser or turn javascript back on.</noscript>
+
     <nav class="navbar navbar-default">
         <div class="container-fluid">
             <div class="navbar-header">
@@ -25,9 +27,7 @@
                     doto
                 </a>
             </div>
-            <div id="profile-tabs" class="navbar-left">
-                <button type="button" class="btn btn-default navbar-btn">wut</button>
-            </div>
+            <div id="profile-tabs" class="navbar-left"></div>
             <form action="" method="post" id="profile_form" class="hide navbar-form navbar-left">
                 <div class="form-group">
                     {% csrf_token %}
@@ -39,40 +39,49 @@
         </div>
     </nav>
 
-    <!--
-    <section id="profiles" class="container-fluid">
-        <div class="navbar-header">Profiles</div>
-        <div id="profile-tabsXXX" class="collapse navbar-collapse"></div>
-        <div>
-            <form action="" method="post" id="profile_form" class="hide navbar-form navbar-left">
-                <div class="form-group">
-                    {% csrf_token %}
-                    <input id="profile_name" name="name" class="form-control" placeholder="Name" />
-                    <input id="profile_email" name="email" class="form-control" placeholder="E-mail" />
-                    <button class="btn">Add</button>
+    <main>
+
+        <p id="message" class="hide"></p>
+
+        <section id="task-add-container" class="bottom-15 hide"></section>
+
+        <div id="add-task-modal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">Add Task</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form action="" method="post" id="add-task-form">
+                            {% csrf_token %}
+                            <input type="hidden" id="task-profile-id" name="task-profile-id">
+                            <fieldset class="form-group">
+                                <label for="task-name">Name</label>
+                                <input type="text" class="form-control" id="task-name" name="task-name">
+                            </fieldset>
+                            <fieldset class="form-group">
+                                <label for="task-details">Details</label>
+                                <textarea type="text" class="form-control" id="task-details" name="task-details"></textarea>
+                            </fieldset>
+                            <fieldset class="form-group">
+                                <label for="task-deadline">Deadline</label>
+                                <input type="text" class="form-control" id="task-deadline" name="task-deadline" placeholder="YYYY-MM-DD" data-provide="datepicker" data-date-format="yyyy-mm-dd">
+                            </fieldset>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-default" data-dismiss="modal">Cancel</button> <button id="save-task-button" class="btn btn-primary save">Save</button>
+                    </div>
                 </div>
-            </form>
+            </div>
         </div>
-    </section>//-->
 
-    <div id="profile-detail" class="list-group">
-        <a href="#" class="list-group-item active"><h4 class="list-group-item-heading">List group item heading</h4><p class="list-group-item-text">...</p></a>
-    </div>
-
-    <!--<section id="profile-detail" class="container hide">
-        <section id="task-add" class="hide">
-            <form action="" method="post" id="task_form" class="navbar-form navbar-left">
-                <input type="hidden" name="profile_id" />
-                <input type="text" name="name" class="form-control" placeholder="Name" />
-                <textarea name="details" class="form-control" placeholder="Details"></textarea>
-                <input type="text" name="deadline" class="form-control" placeholder="YYYY-MM-DD" />
-
-                <button class="btn" onclick="Doto.save_task()">Add</button>
-            </form>
+        <section>
+            <div id="profile-detail" class="list-group"></div>
         </section>
-        <section id="profile-top"><p class="message hide"></p></section>
-        <section id="profile-tasks"><ul id="task-list" class="list-unstyled container-fluid"></ul></section>
-    </section>//-->
+
+    </section>
 
     <script type="text/javascript" src="{% static 'js/jquery-1.11.2.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/bootstrap.min.js' %}"></script>
