@@ -1,11 +1,9 @@
-from doto.models import Profile, Task
-from doto.utils import JSONResponseMixin
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.views.generic import View
 
-#class TaskView(JSONResponseMixin, TemplateView):
-#    def render_to_response(self, context, **response_kwargs):
-#        return self.render_to_json_response(context, **response_kwargs)
+from doto.models import Profile, Task
+from doto.utils import JSONResponseMixin, datetime_to_iso
 
 class ProfileView(JSONResponseMixin, View):
     model = Profile
@@ -56,24 +54,24 @@ class TaskView(JSONResponseMixin, View):
     def post(self, request, *args, **kwargs):
         """ Save a task """
         print('POST: %s', request.POST)
-        if not request.POST.get('task-profile-id'):
+        if not request.POST.get('profile-id'):
             raise ValidationError('Profile not selected.  This should not happen.')
-        elif not request.POST.get('task-name'):
+        elif not request.POST.get('name'):
             raise ValidationError('Task name is required.')
         elif request.POST.get('task-id'):
-            p = Profile.objects.get(profile_id = request.POST.get('task-profile-id'))
+            p = Profile.objects.get(profile_id = int(request.POST.get('profile-id')))
             t = Task.objects.get(task_id = request.POST.get('task-id'))
-            t.name = request.POST.get('task-name')
-            t.details = request.POST.get('task-details')
-            t.deadline = request.POST.get(task-'deadline')
+            t.name = request.POST.get('name')
+            t.details = request.POST.get('details')
+            t.deadline = datetime_to_iso(request.POST.get('deadline'))
             t.profile = p
         else:
             print('adding new task!')
             p = Profile.objects.get(profile_id = request.POST.get('task-profile-id'))
             t = Task(
-                name = request.POST.get('task-name'),
-                details = request.POST.get('task-details'),
-                deadline = request.POST.get('task-deadline'),
+                name = request.POST.get('name'),
+                details = request.POST.get('details'),
+                deadline = datetime_to_iso(request.POST.get('deadline')),
                 profile = p,
             )
         t.save()

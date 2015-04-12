@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.http import JsonResponse
 
 class JSONResponseMixin(object):
@@ -41,6 +42,10 @@ class JSONResponseMixin(object):
 
 def datetime_to_iso(dt):
     """ Convert datetime to iso format string """
-    if dt:
+    if type(dt) == type(str()):
+        datetime.strptime(dt, '%Y-%m-%d')
+    elif dt:
         dt = dt.isoformat()
+    elif dt == '':
+        dt = None
     return dt

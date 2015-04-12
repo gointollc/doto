@@ -6,11 +6,13 @@
 var DotoTemplates = {
     task_edit_form: function(data) {
         html = '<form class="task-edit-form well hide">';
-        html += '<input type="hidden" name="task-id" value="' + data['task_id'] + '" />';
-        html += '<div class="form-group"><label for="edit-task-id-' + data['task_id'] + '">Name</label><input type="text" class="form-control" id="edit-task-id-' + data['task_id'] + '" name="name" value="' + data['name'] + '" /></div>';
-        html += '<div class="form-group"><label for="edit-details-' + data['task_id'] + '">Details</label><textarea id="edit-details-' + data['task_id'] + '" class="form-control" name="task-details">' + data['details'] + '</textarea></div>';
-        html += '<div class="form-group"><label for="edit-deadline-' + data['task_id'] + '">Deadline</label><input type="text" id="edit-deadline-' + data['task_id'] + '" class="form-control" name="deadline" placeholder="YYYY-MM-DD" data-provide="datepicker" data-date-format="yyyy-mm-dd" value="' + data['deadline'] + '" /></div>';
-        html += '<div class="form-group"><button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-save"></span> Save</button></div>';
+        html += '<input type="hidden" name="task-id" class="edit-task-id" value="' + data['task_id'] + '" />';
+        html += '<input type="hidden" name="profile-id" value="' + data['profile'] + '" />';
+        html += '<input type="hidden" name="csrfmiddlewaretoken" value="' + $.cookie('csrftoken') + '" />';
+        html += '<div class="form-group"><label for="edit-task-name-' + data['task_id'] + '">Name</label><input type="text" class="form-control edit-task-name" id="edit-task-name" name="name" value="' + data['name'] + '" /></div>';
+        html += '<div class="form-group"><label for="edit-details-' + data['task_id'] + '">Details</label><textarea id="edit-details-' + data['task_id'] + '" class="form-control edit-task-details" name="details">' + data['details'] + '</textarea></div>';
+        html += '<div class="form-group"><label for="edit-deadline-' + data['task_id'] + '">Deadline</label><input type="text" id="edit-deadline-' + data['task_id'] + '" class="form-control edit-task-deadline" name="deadline" placeholder="YYYY-MM-DD" data-provide="datepicker" data-date-format="yyyy-mm-dd" value="' + data['deadline'] + '" /></div>';
+        html += '<div class="form-group"><button type="submit" class="btn btn-default save-task-button"><span class="glyphicon glyphicon-save"></span> Save</button></div>';
         html += '</form>';
         return html;
     },
@@ -36,10 +38,6 @@ Doto.prototype = {
         });
         $('#add-class-button').click(function(e) {
             $('#add-task-form').toggleClass('hide');
-        });
-        $('#save-task-button').click(function(e) {
-            e.preventDefault();
-            doto.save_task();
         });
         /*$('.task-item .edit').click(function(e) {
             console.log('edit clicked!');
@@ -138,27 +136,30 @@ Doto.prototype = {
                 e.preventDefault();
                 doto.save_task($(this).children('input[name="task-id"]').val());
             })
+            $('.save-task-button').click(function(e) {
+                e.preventDefault();
+                console.log('following should be the form serialized:');
+                console.log($(this).parent().parent().serialize(true));
+                doto.save_task($(this).parent().parent().children('.edit-task-id').val(), $(this).parent().parent().serialize(true));
+            });
         });
     },
     display_task_form: function() {
 
     },
-    save_task: function(task_id = null) {
+    save_task: function(task_id = null, task_form = null) {
         if (task_id != null) {
             console.log('saving task_id=' + task_id);
-            /*
+            console.log(task_form);
             $.ajax("/task/", 
                 {
                     'method': 'POST',
-                    'data': $('#profile_form').serialize(true), 
+                    'data': task_form, 
                     'success': function( data ) {
-                        console.log('saved profile!');
+                        console.log('saved task!');
                     }
                 }
             );
-            $('#profile_form input').val('');
-            $('#profile_form').addClass('hide');
-            this.display_profiles();*/ 
         } else {
             console.log('adding new task...');
             $.ajax("/task/", 
