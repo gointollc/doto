@@ -115,7 +115,7 @@ Doto.prototype = {
                     html += '<a href="#" class="list-group-item task-item"><h3 class="list-group-item-heading">' + val['name'] + '</h4>';
                     html += '<p class="list-group-item-text bottom-15">' + val['details'] + '</p>';
                     html += '<p class="list-group-item-text options">';
-                        html += '<button class="btn btn-default"><span class="glyphicon glyphicon-check text-right"></span> Done</button>';
+                        html += '<button class="btn btn-default complete-task" data-task-id="' + val['task_id'] + '"><span class="glyphicon glyphicon-check text-right"></span> Done</button>';
                         html += '<button class="btn btn-default edit"><span class="glyphicon glyphicon-wrench text-right"></span> Edit</button>';
                     html += '</p>';
                     //html += '<form class="task-edit-form"><input type="hidden" name="task-id" value="' + val['task_id'] + '" /><input type="text" /><textarea name="task-details"></textarea></form>'
@@ -142,9 +142,26 @@ Doto.prototype = {
                 console.log($(this).parent().parent().serialize(true));
                 doto.save_task($(this).parent().parent().children('.edit-task-id').val(), $(this).parent().parent().serialize(true));
             });
+            $('.complete-task').click(function(e) {
+                doto.complete_task($(this).data('taskId'));
+            })
         });
     },
-    display_task_form: function() {
+    complete_task: function(task_id = null) {
+        if (task_id) {
+            $.ajax("/task/complete/", 
+                {
+                    'method': 'POST',
+                    'data': 'task-id=' + task_id + '&csrfmiddlewaretoken=' + $.cookie('csrftoken'), 
+                    'success': function( data ) {
+                        console.log('completed task!');
+                    }
+                }
+            );
+        } else {
+            // TODO: display error to the user?  This really shouldn't happen.
+            console.log('task_id is required to complete a task.');
+        }
 
     },
     save_task: function(task_id = null, task_form = null) {

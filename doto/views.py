@@ -43,10 +43,10 @@ class TaskView(JSONResponseMixin, View):
     def get(self, request, *args, **kwargs):
         """ Display tasks """
         if kwargs.get('task_id'):
-            objs = Task.objects.filter(task_id = kwargs.get('task_id'))
+            objs = Task.objects.filter(task_id = kwargs.get('task_id'), complete = False)
         elif request.GET.get('profile_id'):
             print('filtering by profile_id! ', request.GET.get('profile_id'))
-            objs = Task.objects.filter(profile_id = request.GET.get('profile_id'))
+            objs = Task.objects.filter(profile_id = request.GET.get('profile_id'), complete = False)
         else:
             objs = Task.objects.all()
         return self.render_to_json_response({'object_name': 'task', 'objects': objs, })
@@ -77,3 +77,16 @@ class TaskView(JSONResponseMixin, View):
         t.save()
         return self.render_to_json_response({})
 
+class TaskCompleteView(JSONResponseMixin, View):
+    model = Task
+    http_method_names = ['post', ]
+
+    def post(self, request, *args, **kwargs):
+        """ Complete a task """
+        if not request.POST.get('task-id'):
+            raise ValidationError('task-id is required.')
+        else:
+            t = Task.objects.get(task_id = request.POST.get('task-id'))
+            t.complete = True
+            t.save()
+            return self.render_to_json_response({})
