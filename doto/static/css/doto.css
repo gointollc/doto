@@ -19,6 +19,39 @@
     padding: 15px;
 }
 
+#loading-indicator {
+    height: 2px;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    background: linear-gradient(to right, white, blue, white);
+    animation: masked-animation 3s ease-in-out infinite;
+}
+
+@keyframes masked-animation {
+    0% {background-position: -2000px 0;}
+    50% {background-position: 0px 0;}
+    100% {background-position: 2000px 0;}
+}
+
+@-webkit-keyframes masked-animation {
+    0% {background-position: -2000px 0;}
+    50% {background-position: 0px 0;}
+    100% {background-position: 2000px 0;}
+}
+
+@-o-keyframes masked-animation {
+    0% {background-position: -2000px 0;}
+    50% {background-position: 0px 0;}
+    100% {background-position: 2000px 0;}
+}
+
+@-moz-keyframes masked-animation {
+    0% {background-position: -2000px 0;}
+    50% {background-position: 0px 0;}
+    100% {background-position: 2000px 0;}
+}
+
 /* helper classes */
 .bottom-15 { margin-bottom: 15px; }
 .bg-danger,

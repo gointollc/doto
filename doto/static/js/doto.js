@@ -7,11 +7,11 @@ var DotoTemplates = {
     task_edit_form: function(data) {
         html = '<form class="task-edit-form well hide">';
         html += '<input type="hidden" name="task-id" class="edit-task-id" value="' + data['task_id'] + '" />';
-        html += '<input type="hidden" name="profile-id" value="' + data['profile'] + '" />';
+        html += '<input type="hidden" name="task-profile-id" value="' + data['profile'] + '" />';
         html += '<input type="hidden" name="csrfmiddlewaretoken" value="' + $.cookie('csrftoken') + '" />';
-        html += '<div class="form-group"><label for="edit-task-name-' + data['task_id'] + '">Name</label><input type="text" class="form-control edit-task-name" id="edit-task-name" name="name" value="' + data['name'] + '" /></div>';
-        html += '<div class="form-group"><label for="edit-details-' + data['task_id'] + '">Details</label><textarea id="edit-details-' + data['task_id'] + '" class="form-control edit-task-details" name="details">' + data['details'] + '</textarea></div>';
-        html += '<div class="form-group"><label for="edit-deadline-' + data['task_id'] + '">Deadline</label><input type="text" id="edit-deadline-' + data['task_id'] + '" class="form-control edit-task-deadline" name="deadline" placeholder="YYYY-MM-DD" data-provide="datepicker" data-date-format="yyyy-mm-dd" value="' + data['deadline'] + '" /></div>';
+        html += '<div class="form-group"><label for="edit-task-name-' + data['task_id'] + '">Name</label><input type="text" class="form-control edit-task-name" id="edit-task-name" name="task-name" value="' + data['name'] + '" /></div>';
+        html += '<div class="form-group"><label for="edit-details-' + data['task_id'] + '">Details</label><textarea id="edit-details-' + data['task_id'] + '" class="form-control edit-task-details" name="task-details">' + data['details'] + '</textarea></div>';
+        html += '<div class="form-group"><label for="edit-deadline-' + data['task_id'] + '">Deadline</label><input type="text" id="edit-deadline-' + data['task_id'] + '" class="form-control edit-task-deadline" name="task-deadline" placeholder="YYYY-MM-DD" data-provide="datepicker" data-date-format="yyyy-mm-dd" value="' + data['deadline'] + '" /></div>';
         html += '<div class="form-group"><button type="submit" class="btn btn-default save-task-button"><span class="glyphicon glyphicon-save"></span> Save</button></div>';
         html += '</form>';
         return html;
@@ -30,14 +30,15 @@ Doto.prototype = {
     profiles: false,
     currentProfileId: -1,
     setup: function() {
+        this.start_loading();
         // Setup events
         $('#profile_form').submit(function(e) {
             e.preventDefault();
             console.log('saving profile...');
             doto.save_profile();
         });
-        $('#add-class-button').click(function(e) {
-            $('#add-task-form').toggleClass('hide');
+        $('#add-task-button').click(function(e) {
+            doto.save_task();
         });
         /*$('.task-item .edit').click(function(e) {
             console.log('edit clicked!');
@@ -49,10 +50,21 @@ Doto.prototype = {
         this.display_profiles();
         this.display_profile_tasks(1);
 
+        this.stop_loading();
+
         // utilities
         //$('.datepicker').datepicker();
     },
+    start_loading: function() {
+        $('#loading-indicator').removeClass('hide');
+        console.log('start loading');
+    },
+    stop_loading: function() {
+        $('#loading-indicator').addClass('hide');
+        console.log('done loading');
+    },
     display_profiles: function() {
+        this.start_loading();
         $.getJSON("/profile", function( data ) {
             if (data.status == 'error') {
                 doto.profiles = false;
@@ -78,9 +90,11 @@ Doto.prototype = {
                     $(this).addClass('active');
                 });
             }
+            doto.stop_loading();
         });
     },
     save_profile: function() {
+        this.start_loading();
         $.ajax("/profile/", 
             {
                 'method': 'POST',
@@ -92,12 +106,14 @@ Doto.prototype = {
                     if (doto.profiles) {
                         doto.display_profile_tasks(1);
                     }
+                    doto.stop_loading();
                 }
             }
         );
         return false;
     },
     display_profile_tasks: function(profile_id) {
+        this.start_loading();
         doto.currentProfileId = profile_id;
         $('#add-task-form #task-profile-id').val(profile_id);
         $.getJSON("/task/?profile_id=" + profile_id, function( data ) {
@@ -112,16 +128,19 @@ Doto.prototype = {
                 $('#task-add-container').html(DotoTemplates.add_task_button()).removeClass('hide');
                 html = '';
                 $.each(data['data'], function(idx, val) {
-                    html += '<a href="#" class="list-group-item task-item"><h3 class="list-group-item-heading">' + val['name'] + '</h4>';
+
+                    if(val['deadline'] === null) val['deadline'] = '';
+
+                    html += '<div class="list-group-item task-item"><h3 class="list-group-item-heading">' + val['name'] + '</h4>';
                     html += '<p class="list-group-item-text bottom-15">' + val['details'] + '</p>';
                     html += '<p class="list-group-item-text options">';
                         html += '<button class="btn btn-default complete-task" data-task-id="' + val['task_id'] + '"><span class="glyphicon glyphicon-check text-right"></span> Done</button>';
                         html += '<button class="btn btn-default edit"><span class="glyphicon glyphicon-wrench text-right"></span> Edit</button>';
                     html += '</p>';
-                    //html += '<form class="task-edit-form"><input type="hidden" name="task-id" value="' + val['task_id'] + '" /><input type="text" /><textarea name="task-details"></textarea></form>'
                     html += DotoTemplates.task_edit_form(val);
                     html += '<p class="list-group-item-text"><small>Added ' + val['added'] + '</small></p>';
-                    html += '</a>';
+                    html += '</div>';
+
                 })
                 //html += '';
                 $('#profile-detail').html(html);
@@ -145,9 +164,11 @@ Doto.prototype = {
             $('.complete-task').click(function(e) {
                 doto.complete_task($(this).data('taskId'));
             })
+            doto.stop_loading();
         });
     },
     complete_task: function(task_id = null) {
+        this.start_loading();
         if (task_id) {
             $.ajax("/task/complete/", 
                 {
@@ -155,6 +176,7 @@ Doto.prototype = {
                     'data': 'task-id=' + task_id + '&csrfmiddlewaretoken=' + $.cookie('csrftoken'), 
                     'success': function( data ) {
                         console.log('completed task!');
+                        doto.stop_loading();
                     }
                 }
             );
@@ -166,6 +188,7 @@ Doto.prototype = {
     },
     save_task: function(task_id = null, task_form = null) {
         if (task_id != null) {
+            this.start_loading();
             console.log('saving task_id=' + task_id);
             console.log(task_form);
             $.ajax("/task/", 
@@ -174,6 +197,7 @@ Doto.prototype = {
                     'data': task_form, 
                     'success': function( data ) {
                         console.log('saved task!');
+                        doto.stop_loading();
                     }
                 }
             );
@@ -185,10 +209,12 @@ Doto.prototype = {
                     'data': $('#add-task-form').serialize(true), 
                     'success': function( data ) {
                         console.log('saved task!');
+                        $('#add-task-modal').modal('hide');
                     }
                 }
             );
         }
+        doto.display_profile_tasks(doto.currentProfileId);
         return false;
     },
 };

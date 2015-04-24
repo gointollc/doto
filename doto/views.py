@@ -44,9 +44,9 @@ class TaskView(JSONResponseMixin, View):
         """ Display tasks """
         if kwargs.get('task_id'):
             objs = Task.objects.filter(task_id = kwargs.get('task_id'), complete = False)
-        elif request.GET.get('profile_id'):
-            print('filtering by profile_id! ', request.GET.get('profile_id'))
-            objs = Task.objects.filter(profile_id = request.GET.get('profile_id'), complete = False)
+        elif request.GET.get('task-profile_id'):
+            print('filtering by profile_id! ', request.GET.get('task-profile_id'))
+            objs = Task.objects.filter(profile_id = request.GET.get('task-profile_id'), complete = False)
         else:
             objs = Task.objects.all()
         return self.render_to_json_response({'object_name': 'task', 'objects': objs, })
@@ -54,24 +54,30 @@ class TaskView(JSONResponseMixin, View):
     def post(self, request, *args, **kwargs):
         """ Save a task """
         print('POST: %s', request.POST)
-        if not request.POST.get('profile-id'):
+        if request.POST.get('task-deadline'):
+            deadline = datetime_to_iso(request.POST.get('task-deadline'))
+        else:
+            deadline = None
+
+        if not request.POST.get('task-profile-id'):
             raise ValidationError('Profile not selected.  This should not happen.')
-        elif not request.POST.get('name'):
+        elif not request.POST.get('task-name'):
             raise ValidationError('Task name is required.')
         elif request.POST.get('task-id'):
-            p = Profile.objects.get(profile_id = int(request.POST.get('profile-id')))
+            p = Profile.objects.get(profile_id = int(request.POST.get('task-profile-id')))
             t = Task.objects.get(task_id = request.POST.get('task-id'))
-            t.name = request.POST.get('name')
-            t.details = request.POST.get('details')
-            t.deadline = datetime_to_iso(request.POST.get('deadline'))
+            t.name = request.POST.get('task-name')
+            t.details = request.POST.get('task-details')
+            t.deadline = deadline
             t.profile = p
         else:
             print('adding new task!')
             p = Profile.objects.get(profile_id = request.POST.get('task-profile-id'))
+            
             t = Task(
-                name = request.POST.get('name'),
-                details = request.POST.get('details'),
-                deadline = datetime_to_iso(request.POST.get('deadline')),
+                name = request.POST.get('task-name'),
+                details = request.POST.get('task-details'),
+                deadline = deadline,
                 profile = p,
             )
         t.save()
