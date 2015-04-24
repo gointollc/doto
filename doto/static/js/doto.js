@@ -31,6 +31,7 @@ Doto.prototype = {
     currentProfileId: -1,
     setup: function() {
         this.start_loading();
+        
         // Setup events
         $('#profile_form').submit(function(e) {
             e.preventDefault();
