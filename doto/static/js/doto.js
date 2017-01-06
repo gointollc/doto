@@ -47,6 +47,11 @@ Doto.prototype = {
         $('#add-class-button').click(function(e) {
             $('#add-task-form').toggleClass('hide');
         });
+
+        // handle events
+        $('#add-task-modal').on('shown.bs.modal', function() {
+            $('#task-name').focus();
+        })
         /*$('.task-item .edit').click(function(e) {
             console.log('edit clicked!');
             $(this).parent().parent().children('.task-edit-form').removeClass('hide');

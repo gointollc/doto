@@ -1,5 +1,8 @@
 main {}
 nav {}
+nav .navbar-form {
+    margin-bottom: 0;
+}
 section {
     display: block;
     clear: both;
