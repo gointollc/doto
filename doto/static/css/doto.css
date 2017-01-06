@@ -1,3 +1,16 @@
+main {}
+nav {}
+section {
+    display: block;
+    clear: both;
+    margin: 0;
+    padding: 10px 0;
+}
+
+#task-add-container {
+    padding-right: 15px;
+}
+
 #profile-tabs button { margin-right: 5px !important; }
 #profile-detail {
     width: 100%;
@@ -5,6 +18,11 @@
 }
 .list-group-item-text.options i {
     padding: 5px;
+}
+.list-group-item-text.options button {
+    /*clear: right;*/
+    position: relative;
+    top: -1.5em;
 }
 #profile-tasks {}
 #task-list {}
@@ -26,3 +44,11 @@
 .bg-info,
 .bg-success,
 .bg-primary { padding: 10px; }
+
+.btn { 
+    float: right; 
+    clear: none; 
+    position: relative;
+    /*top: -20px;*/
+    z-index: 30;
+}

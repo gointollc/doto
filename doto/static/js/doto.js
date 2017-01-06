@@ -121,11 +121,11 @@ Doto.prototype = {
                 html = '';
                 $.each(data['data'], function(idx, val) {
                     html += '<a href="#" class="list-group-item task-item"><h3 class="list-group-item-heading">' + val['name'] + '</h4>';
-                    html += '<p class="list-group-item-text bottom-15">' + val['details'] + '</p>';
                     html += '<p class="list-group-item-text options">';
                         html += '<button class="btn btn-default complete-task" data-task-id="' + val['task_id'] + '"><span class="glyphicon glyphicon-check text-right"></span> Done</button>';
                         html += '<button class="btn btn-default edit"><span class="glyphicon glyphicon-wrench text-right"></span> Edit</button>';
                     html += '</p>';
+                    html += '<p class="list-group-item-text bottom-15">' + val['details'] + '</p>';
                     //html += '<form class="task-edit-form"><input type="hidden" name="task-id" value="' + val['task_id'] + '" /><input type="text" /><textarea name="task-details"></textarea></form>'
                     html += DotoTemplates.task_edit_form(val);
                     html += '<p class="list-group-item-text"><small>Added ' + val['added'] + '</small></p>';

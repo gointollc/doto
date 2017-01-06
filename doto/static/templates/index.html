@@ -26,8 +26,8 @@
                 <a class="navbar-brand" href="/">
                     doto
                 </a>
+                <div id="profile-tabs" class="navbar-left"></div>
             </div>
-            <div id="profile-tabs" class="navbar-left"></div>
             <form action="" method="post" id="profile_form" class="hide navbar-form navbar-left">
                 <div class="form-group">
                     {% csrf_token %}
@@ -81,7 +81,7 @@
             <div id="profile-detail" class="list-group"></div>
         </section>
 
-    </section>
+    </main>
 
     <script type="text/javascript" src="{% static 'js/jquery-1.11.2.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/jquery.cookie.js' %}"></script>
