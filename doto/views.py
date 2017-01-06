@@ -67,7 +67,7 @@ class TaskView(JSONResponseMixin, View):
             t.profile = p
         else:
             print('adding new task!')
-            p = Profile.objects.get(profile_id = request.POST.get('task-profile-id'))
+            p = Profile.objects.get(profile_id = request.POST.get('profile-id'))
             t = Task(
                 name = request.POST.get('name'),
                 details = request.POST.get('details'),

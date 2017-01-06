@@ -31,6 +31,14 @@ Doto.prototype = {
     currentProfileId: -1,
     setup: function() {
         // Setup events
+        $('#add-task-modal .save').click(function(e) {
+            //e.preventDefault();
+            //$('#add-task-form #task-profile-id').val(doto.currentProfileId);
+            console.log('saving new task...');
+            doto.save_task(task_form = $('#add-task-form'));
+            // TODO: check for sucess?
+            $('#add-task-modal').modal('hide');
+        });
         $('#profile_form').submit(function(e) {
             e.preventDefault();
             console.log('saving profile...');
@@ -44,7 +52,7 @@ Doto.prototype = {
             $(this).parent().parent().children('.task-edit-form').removeClass('hide');
 
         });*/
-
+            
         // reveal the interface
         this.display_profiles();
         this.display_profile_tasks(1);
@@ -164,27 +172,33 @@ Doto.prototype = {
         }
 
     },
-    save_task: function(task_id = null, task_form = null) {
-        if (task_id != null) {
-            console.log('saving task_id=' + task_id);
-            console.log(task_form);
+    save_task: function(args) {
+        if (!args) args = {};
+
+        if (args.task_id != null || args.task_form != null) {
+            console.log('saving task_id=' + args.task_id);
+            console.log(args.task_form);
             $.ajax("/task/", 
                 {
                     'method': 'POST',
-                    'data': task_form, 
+                    'data': args.task_form.serialize(true), 
                     'success': function( data ) {
                         console.log('saved task!');
+                        // refresh
+                        doto.display_profile_tasks(doto.currentProfileId);
                     }
                 }
             );
         } else {
-            console.log('adding new task...');
+            //console.log('adding new task...');
             $.ajax("/task/", 
                 {
                     'method': 'POST',
                     'data': $('#add-task-form').serialize(true), 
                     'success': function( data ) {
                         console.log('saved task!');
+                        // refresh
+                        doto.display_profile_tasks(doto.currentProfileId);
                     }
                 }
             );
