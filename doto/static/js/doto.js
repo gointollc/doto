@@ -31,7 +31,7 @@ Doto.prototype = {
     currentProfileId: -1,
     setup: function() {
         this.start_loading();
-        
+
         // Setup events
         $('#profile_form').submit(function(e) {
             e.preventDefault();
@@ -168,7 +168,8 @@ Doto.prototype = {
             doto.stop_loading();
         });
     },
-    complete_task: function(task_id = null) {
+    complete_task: function(task_id) {
+        task_id = task_id || null;
         this.start_loading();
         if (task_id) {
             $.ajax("/task/complete/", 
@@ -187,7 +188,9 @@ Doto.prototype = {
         }
 
     },
-    save_task: function(task_id = null, task_form = null) {
+    save_task: function(task_id, task_form) {
+        task_id = task_id || null;
+        task_form = task_form || null;
         if (task_id != null) {
             this.start_loading();
             console.log('saving task_id=' + task_id);
