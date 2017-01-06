@@ -19,6 +19,9 @@ section {
     width: 100%;
     /*margin-top: 60px;*/
 }
+.list-group-item-text.options {
+    display: block;
+}
 .list-group-item-text.options i {
     padding: 5px;
 }
@@ -52,6 +55,16 @@ section {
     float: right; 
     clear: none; 
     position: relative;
-    /*top: -20px;*/
-    z-index: 30;
+    /*top: -20px;
+    z-index: 30;*/
+}
+
+.task-soon h3,
+.task-soon .deadline {
+    color: #C4974F !important;
+}
+
+.task-late h3,
+.task-late .deadline {
+    color: #C44F58 !important;
 }
