@@ -34,9 +34,10 @@ var Doto = function() {};
 Doto.prototype = {
     version: '0.0.1',
     profiles: false,
-    currentProfileId: -1,
-    user_id: null,
-    auth_expiration: null,
+    currentProfileId: sessionStorage.getItem('currentProfileId') || -1,
+    user_id: sessionStorage.getItem('doto_user_id'),
+    auth_expiration: sessionStorage.getItem('doto_auth_expiration'),
+    token: sessionStorage.getItem('doto_token'),
     setup: function() {
         // Setup events
         $('#add-task-modal .save').click(function(e) {
@@ -70,11 +71,22 @@ Doto.prototype = {
             $(this).parent().parent().children('.task-edit-form').removeClass('hide');
 
         });*/
+
+        // ajax settings
+        if (this.token) {
+            $.ajaxSetup({headers: {"Authorization": "Basic " + this.token}})
+        }
             
         // reveal the interface
         //this.display_profiles();
         //this.display_profile_tasks(1);
-        this.display_login();
+        if (this.user_id && this.auth_expiration > Date.now()) {
+            this.display_profiles();
+            this.display_profile_tasks(1);
+        }
+        else {
+            this.display_login();
+        }
 
         // utilities
         //$('.datepicker').datepicker();
@@ -142,6 +154,7 @@ Doto.prototype = {
 
         // Deal with new profile_id
         doto.currentProfileId = profile_id;
+        sessionStorage.setItem('currentProfileId', profile_id);
 
         $('#add-task-form #task-profile-id').val(profile_id);
 
@@ -269,6 +282,7 @@ Doto.prototype = {
                     console.log('logged in!');
 
                     // From now on, we want to use this token for auth
+                    doto.token = data.data[0].token;
                     $.ajaxSetup({headers: {"Authorization": "Basic " + data.data[0].token}});
 
                     // refresh
@@ -276,6 +290,11 @@ Doto.prototype = {
                     doto.display_profiles();
                     doto.display_profile_tasks(data.data[0].user_id);
                     doto.auth_expiration = Date.parse(data.data[0].expire);
+
+                    // store
+                    sessionStorage.setItem('doto_user_id', data.data[0].user_id);
+                    sessionStorage.setItem('doto_auth_expiration', Date.parse(data.data[0].expire));
+                    sessionStorage.setItem('doto_token', data.data[0].token);
                 },
                 'error': function(xhr, status, error) {
                     if (xhr.status === 401) {
