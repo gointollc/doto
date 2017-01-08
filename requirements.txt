@@ -1,2 +1,4 @@
 Django==1.8
 django-tagging==0.3.4
+jwt==0.3.2
+pycrypto==2.6.1
