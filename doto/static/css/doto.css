@@ -9,11 +9,35 @@ section {
     margin: 0;
     padding: 10px 0;
 }
-
-#task-add-container {
-    padding-right: 15px;
+#notify {
+    max-height: 200px;
+    overflow: hidden;
+    display: block;
+}
+#notify:before {
+    content: '';
+    width: 100%;
+    height: 300px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    background: linear-gradient(transparent 150px, white);
+    z-index: -50;
 }
 
+#login_form {}
+#login_form .register-link {
+    display: block;
+    float: right;
+}
+
+#task-add-container {
+    padding-right: .75em;
+}
+
+#profile-tabs {
+    padding-right: .75em;
+}
 #profile-tabs button { margin-right: 5px !important; }
 #profile-detail {
     width: 100%;
@@ -39,8 +63,12 @@ section {
 #task-list li a span {
     margin-left: 15px;
 }
-#profile-top .message {
+#message {
     padding: 15px;
+}
+
+#promo {
+    padding: 0 1.5em 1.5em;
 }
 
 /* helper classes */
@@ -68,3 +96,20 @@ section {
 .task-late .deadline {
     color: #C44F58 !important;
 }
+
+/* small? */
+@media (min-width: 768px) {
+    #login_form .register-link {
+        top: 0.5em;
+        position: relative;
+        margin-left: .5em;
+    }
+}
+
+/* tablet */
+@media (min-width: 992px) { 
+    
+}
+
+/* desktop */
+@media (min-width: 1200px) { ... }

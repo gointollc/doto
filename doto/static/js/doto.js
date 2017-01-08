@@ -16,11 +16,17 @@ var DotoTemplates = {
         html += '</form>';
         return html;
     },
+    login_button: function () {
+        return '<button class="btn btn-default navbar-btn noaction" onclick="$(\'#login_form\').toggleClass(\'hide\'); return false;"><i class="glyphicon glyphicon-user"></i> </button>';
+    },
     add_profile_button: function() {
         return '<button class="btn btn-default navbar-btn noaction" onclick="$(\'#profile_form\').toggleClass(\'hide\'); return false;"><i class="glyphicon glyphicon-plus"></i> </button>';
     },
     add_task_button: function() {
         return '<button class="btn btn-default" id="add-task-button" data-toggle="modal" data-target="#add-task-modal"><span class="glyphicon glyphicon-plus"></span> Add Task</button>';
+    },
+    alert: function() {
+        return '<p id="message" class="alert alert-info fade in"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><span class="message-text"></span></p>';
     }
 }
 
@@ -29,13 +35,15 @@ Doto.prototype = {
     version: '0.0.1',
     profiles: false,
     currentProfileId: -1,
+    user_id: null,
+    auth_expiration: null,
     setup: function() {
         // Setup events
         $('#add-task-modal .save').click(function(e) {
             //e.preventDefault();
             //$('#add-task-form #task-profile-id').val(doto.currentProfileId);
             console.log('saving new task...');
-            doto.save_task(task_form = $('#add-task-form'));
+            doto.save_task({'task_form': $('#add-task-form').serialize(true)});
             // TODO: check for sucess?
             $('#add-task-modal').modal('hide');
         });
@@ -43,6 +51,11 @@ Doto.prototype = {
             e.preventDefault();
             console.log('saving profile...');
             doto.save_profile();
+        });
+        $('#login_form').submit(function(e) {
+            e.preventDefault();
+            console.log('loggin in...');
+            doto.login($('#username').val(), $('#password').val());
         });
         $('#add-class-button').click(function(e) {
             $('#add-task-form').toggleClass('hide');
@@ -59,18 +72,33 @@ Doto.prototype = {
         });*/
             
         // reveal the interface
-        this.display_profiles();
-        this.display_profile_tasks(1);
+        //this.display_profiles();
+        //this.display_profile_tasks(1);
+        this.display_login();
 
         // utilities
         //$('.datepicker').datepicker();
     },
+    display_login: function() {
+        $('#profile-tabs').html(DotoTemplates.login_button());
+    },
+    display_promo: function() {
+        $('#promo').removeClass('hide');
+    },
     display_profiles: function() {
         $.getJSON("/profile", function( data ) {
-            if (data.status == 'error') {
+            if (data.status == false) {
                 doto.profiles = false;
                 $('#profile-tabs').html(DotoTemplates.add_profile_button());
-                $('#message').html(data['message']).addClass('bg-danger').removeClass('hide');
+
+                var new_alert = $(DotoTemplates.alert());
+                $('#notify').prepend(new_alert);
+                new_alert.children('.message-text').html(data['message'])
+                new_alert.delay(3000).slideUp(200, function() {
+                        $(this).alert('close');
+                    });
+                new_alert.alert();
+
             } else {
                 doto.profiles = true;
                 html = ''; 
@@ -83,9 +111,6 @@ Doto.prototype = {
                 // Add click event to tabs
                 $('#profile-tabs button').not('.noaction').click(function(e) {
                     e.preventDefault();
-                    //console.log('click!  profile_id = ' + e.currentTarget.data('profile-id'))
-                    //console.log('click!  profile_id = ' + this.data('profile-id'));
-                    //console.log($(this).data('profileId'));
                     doto.display_profile_tasks($(this).data('profileId'));
                     $('#profile-tabs button').removeClass('active');
                     $(this).addClass('active');
@@ -111,44 +136,59 @@ Doto.prototype = {
         return false;
     },
     display_profile_tasks: function(profile_id) {
+
+        // get rid of the promo
+        $('#promo').addClass('hide');
+
+        // Deal with new profile_id
         doto.currentProfileId = profile_id;
+
         $('#add-task-form #task-profile-id').val(profile_id);
+
         $.getJSON("/task/?profile_id=" + profile_id, function( data ) {
-            if (data.status == 'error') {
-                console.log(data['message']);
-                $('#task-list').html('');
-                $('#message').html(data['message']).removeClass('hide').addClass('bg-warning');
-                $('#task-add-container').html(DotoTemplates.add_task_button()).removeClass('hide');
+                
+            $('#task-add-container').html(DotoTemplates.add_task_button()).removeClass('hide');
+
+            if (data.status == false) {
+                
+                console.warn(data['message']);
+                
+                var new_alert = $(DotoTemplates.alert());
+                $('#notify').prepend(new_alert);
+                new_alert.children('.message-text').html(data['message']);
+                new_alert.delay(3000).slideUp(200, function() {
+                        $(this).alert('close');
+                    });
+                new_alert.alert();
+
             } else {
-                console.log(data);
-                $('#message').addClass('hide');
-                $('#task-add-container').html(DotoTemplates.add_task_button()).removeClass('hide');
                 html = '';
-                $.each(data['data'], function(idx, val) {
-                    var colorMod;
-                    if (val['deadline']) {
-                        var diff = (Date.parse(val['deadline']) - Date.now()) * 0.001; // milliseconds to seconds
-                        console.log("diff: " + diff);
-                        // past
-                        if (diff < 0)
-                            colorMod = 'task-late';
-                        // or less than a week away
-                        else if (diff < 604800)
-                            colorMod = 'task-soon';
-                    }
-                    html += '<a href="#" class="list-group-item task-item ' + colorMod + '"><h3 class="list-group-item-heading">' + val['name'] + '</h4>';
-                    html += '<p class="list-group-item-text bottom-15">' + val['details'] + '</p>';
-                    html += '<p class="list-group-item-text options">';
-                        html += '<button class="btn btn-default complete-task" data-task-id="' + val['task_id'] + '"><span class="glyphicon glyphicon-check text-right"></span> Done</button>';
-                        html += '<button class="btn btn-default edit"><span class="glyphicon glyphicon-wrench text-right"></span> Edit</button>';
-                    html += '</p>';
-                    //html += '<form class="task-edit-form"><input type="hidden" name="task-id" value="' + val['task_id'] + '" /><input type="text" /><textarea name="task-details"></textarea></form>'
-                    html += DotoTemplates.task_edit_form(val);
-                    html += '<p class="list-group-item-text"><small>Added ' + val['added'] + '</small></p>';
-                    if (val['deadline']) 
-                        html += '<p class="list-group-item-text"><small> to do before <span class="deadline">' + val['deadline'] + '</span></small></p>';
-                    html += '</a>';
-                })
+                if (data['data']) {
+                    $.each(data['data'], function(idx, val) {
+                        var colorMod;
+                        if (val['deadline']) {
+                            var diff = (Date.parse(val['deadline']) - Date.now()) * 0.001; // milliseconds to seconds
+                            // past
+                            if (diff < 0)
+                                colorMod = 'task-late';
+                            // or less than a week away
+                            else if (diff < 604800)
+                                colorMod = 'task-soon';
+                        }
+                        html += '<a href="#" class="list-group-item task-item ' + colorMod + '"><h3 class="list-group-item-heading">' + val['name'] + '</h4>';
+                        html += '<p class="list-group-item-text bottom-15">' + val['details'] + '</p>';
+                        html += '<p class="list-group-item-text options">';
+                            html += '<button class="btn btn-default complete-task" data-task-id="' + val['task_id'] + '"><span class="glyphicon glyphicon-check text-right"></span> Done</button>';
+                            html += '<button class="btn btn-default edit"><span class="glyphicon glyphicon-wrench text-right"></span> Edit</button>';
+                        html += '</p>';
+                        //html += '<form class="task-edit-form"><input type="hidden" name="task-id" value="' + val['task_id'] + '" /><input type="text" /><textarea name="task-details"></textarea></form>'
+                        html += DotoTemplates.task_edit_form(val);
+                        html += '<p class="list-group-item-text"><small>Added ' + val['added'] + '</small></p>';
+                        if (val['deadline']) 
+                            html += '<p class="list-group-item-text"><small> to do before <span class="deadline">' + val['deadline'] + '</span></small></p>';
+                        html += '</a>';
+                    });
+                }
                 //html += '';
                 $('#profile-detail').html(html);
                 $('#profile-detail').removeClass('hide');
@@ -160,13 +200,11 @@ Doto.prototype = {
             });
             $('.task-edit-form').submit(function(e) {
                 e.preventDefault();
-                doto.save_task($(this).children('input[name="task-id"]').val());
+                doto.save_task({'task_id': $(this).children('input[name="task-id"]').val(), 'task_form': $(this).parent().parent().serialize(true)});
             })
             $('.save-task-button').click(function(e) {
                 e.preventDefault();
-                console.log('following should be the form serialized:');
-                console.log($(this).parent().parent().serialize(true));
-                doto.save_task($(this).parent().parent().children('.edit-task-id').val(), $(this).parent().parent().serialize(true));
+                doto.save_task({'task_id': $(this).parent().parent().children('.edit-task-id').val(), 'task_form': $(this).parent().parent().serialize(true)});
             });
             $('.complete-task').click(function(e) {
                 doto.complete_task($(this).data('taskId'));
@@ -196,11 +234,10 @@ Doto.prototype = {
 
         if (args.task_id != null || args.task_form != null) {
             console.log('saving task_id=' + args.task_id);
-            console.log(args.task_form);
             $.ajax("/task/", 
                 {
                     'method': 'POST',
-                    'data': args.task_form.serialize(true), 
+                    'data': args.task_form, 
                     'success': function( data ) {
                         console.log('saved task!');
                         // refresh
@@ -209,7 +246,6 @@ Doto.prototype = {
                 }
             );
         } else {
-            //console.log('adding new task...');
             $.ajax("/task/", 
                 {
                     'method': 'POST',
@@ -223,5 +259,51 @@ Doto.prototype = {
             );
         }
         return false;
+    },
+    login: function(username, password) {
+        $.ajax("/login/", 
+            {
+                'method': 'POST',
+                'data': {'csrfmiddlewaretoken': $.cookie('csrftoken'), 'username': username, 'password': password}, 
+                'success': function( data ) {
+                    console.log('logged in!');
+
+                    // From now on, we want to use this token for auth
+                    $.ajaxSetup({headers: {"Authorization": "Basic " + data.data[0].token}});
+
+                    // refresh
+                    $('#login_form').addClass('hide');
+                    doto.display_profiles();
+                    doto.display_profile_tasks(data.data[0].user_id);
+                    doto.auth_expiration = Date.parse(data.data[0].expire);
+                },
+                'error': function(xhr, status, error) {
+                    if (xhr.status === 401) {
+                        console.error("Authentication failed!");
+                        var new_alert = $(DotoTemplates.alert());
+                        $('#notify').prepend(new_alert);
+                        new_alert.children('.message-text').html("Authentication failed!");
+                        new_alert.removeClass('alert-info')
+                            .addClass('alert-danger')
+                            .delay(5000).slideUp(200, function() {
+                                $(this).alert('close');
+                            });
+                        new_alert.alert();
+                    }
+                    else {
+                        console.error("Unknown authentication failure.");
+                        var new_alert = $(DotoTemplates.alert());
+                        new_alert.children('.message-text').html("Unknown authentication failure.");
+                        new_alert.removeClass('alert-info')
+                            .addClass('alert-danger')
+                            .delay(5000).slideUp(200, function() {
+                                $(this).alert('close');
+                            });
+                        new_alert.alert();
+                        $('#notify').prepend(new_alert);
+                    }
+                }
+            }
+        );
     },
 };

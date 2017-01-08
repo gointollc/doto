@@ -17,15 +17,18 @@ class JSONResponseMixin(object):
     def get_data(self, context):
         print('get_data context: ', context)
         
-        status = 'ok'
-        message = ''
+        status = context.get('status')
+        message = context.get('message', '')
 
         if context.get('objects'):
+            status = True
             data = self.objs_to_list_dicts(context.get('objects'))
         else:
             data = None
-            status = 'error'
-            message = 'No %ss found.' % (context.get('object_name') or 'record')
+            if not status:
+                status = False
+            if not message:
+                message = 'No %ss found.' % (context.get('object_name') or 'record')
         output = {
             'status': status,
             'message': message,
@@ -49,3 +52,9 @@ def datetime_to_iso(dt):
     elif dt == '':
         dt = None
     return dt
+
+def response_unauthorized(**response_kwargs):
+    return JsonResponse(
+            {'status': False, 'message': "You must be logged in.", 'data': []},
+            **response_kwargs
+        )

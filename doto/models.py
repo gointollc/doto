@@ -2,7 +2,34 @@ from datetime import datetime
 
 import tagging
 from django.db import models
+from django.contrib.auth.models import User
 from doto.utils import datetime_to_iso
+
+class ModelDict(object):
+    """ A fake model to keep errors from happening...
+        TODO: Is this really the best way to handle this?
+    """
+
+    def __init__(self, **kwargs):
+        for k,v in kwargs.items():
+            setattr(self, k, v) 
+
+    def to_object(self):
+        obj = {}
+        for attr in dir(self):
+            if not attr.startswith('_') and not attr == 'to_object':
+                if (type(getattr(self, attr)) == bytes):
+                    obj[attr] = getattr(self, attr).decode('utf-8')
+                else:
+                    obj[attr] = getattr(self, attr)
+                
+        print("dict: %s" % obj)
+        return obj
+
+class LoginResponse(ModelDict):
+    token = bytes()
+    user_id = int()
+    expire = str()
 
 class Profile(models.Model):
     profile_id = models.AutoField(primary_key=True)
@@ -15,6 +42,22 @@ class Profile(models.Model):
             'profile_id': self.profile_id,
             'name': self.name,
             'email': self.email,
+        }
+
+class ProfilePermissions(models.Model):
+    profile_permissions_id = models.AutoField(primary_key=True)
+    profile = models.ForeignKey(Profile, related_name="profile_permissions")
+    user = models.ForeignKey(User)
+    read = models.BooleanField(default=True)
+    write = models.BooleanField(default=False)
+    def __str__(self):
+        return "Permissions for profile #" + str(self.profile_id) + " for user #" + str(self.user_id)
+    def to_object(self):
+        return {
+            'profile_id': self.profile_id,
+            'user_id': self.user_id,
+            'read': self.read,
+            'write': self.write,
         }
 
 class Task(models.Model):

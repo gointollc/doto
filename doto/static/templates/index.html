@@ -36,12 +36,21 @@
                     <button class="btn">Add</button>
                 </div>
             </form>
+            <form action="" method="post" id="login_form" class="hide navbar-form navbar-left">
+                <div class="form-group clearfix">
+                    <div class="register-link">Not a member?  <a href="#">Register</a></div>
+                    {% csrf_token %}
+                    <input type="text" id="username" name="username" class="form-control" placeholder="Username" />
+                    <input type="password" id="password" name="password" class="form-control" placeholder="Password" />
+                    <button class="btn">Login</button>
+                </div>
+            </form>
         </div>
     </nav>
 
     <main>
 
-        <p id="message" class="hide"></p>
+        <div id="notify"></div>
 
         <section id="task-add-container" class="bottom-15 hide"></section>
 
@@ -77,11 +86,30 @@
             </div>
         </div>
 
+        <section id="promo">
+            <h1>Your To Do List</h1>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis iaculis justo vitae libero venenatis sodales. Maecenas sed sodales ligula, sit amet ullamcorper orci. Integer euismod, est et accumsan aliquet, odio nisl venenatis neque, non tristique velit odio a tortor. Etiam mollis enim in suscipit aliquam. Integer venenatis dignissim dictum. Nullam mollis dui libero, sit amet facilisis justo interdum sit amet. Praesent scelerisque maximus libero, quis pulvinar velit porta a. Quisque id hendrerit erat. Ut scelerisque purus eu auctor tempor. Nulla suscipit felis at velit condimentum molestie. Etiam vitae dignissim ligula, sit amet commodo neque. Pellentesque tempor tempus leo, eget ullamcorper est efficitur a.</p>
+
+            <p>Vestibulum dictum rutrum mauris vitae luctus. Etiam interdum quam ut enim elementum maximus. Nunc vestibulum diam vitae sapien lobortis pellentesque. Aenean molestie in mi nec pulvinar. Vivamus pretium hendrerit ullamcorper. Sed vitae erat vitae sem rhoncus condimentum et in odio. Sed molestie tortor ex, non lobortis lorem convallis eu. Morbi tincidunt sit amet velit sit amet finibus. Vestibulum vitae molestie lectus, hendrerit luctus quam. Donec sit amet turpis ultrices, auctor erat in, fringilla dolor. Suspendisse sit amet ligula vel tellus bibendum dapibus nec ac purus. Phasellus elementum ultrices metus id tristique. Vestibulum imperdiet dictum diam eu mollis. Proin egestas turpis quis massa hendrerit, eu sodales erat cursus. Nunc elementum tincidunt pharetra. Aliquam luctus pulvinar leo ut bibendum.</p>
+
+            <p>Curabitur maximus sagittis lacus. Curabitur pharetra turpis vel elit tincidunt, a gravida turpis sollicitudin. In hac habitasse platea dictumst. Donec fringilla nulla nec sodales aliquam. Quisque nibh turpis, vestibulum at facilisis a, vulputate non magna. Ut in ipsum accumsan sapien aliquet accumsan vitae at nibh. Ut sodales dui eu ex dapibus semper. In eu viverra nibh. Praesent sodales enim vel elit consectetur posuere.</p>
+
+            <p>Phasellus eu magna enim. Sed sit amet erat eu libero rhoncus tempor. Aenean vitae risus nec dui volutpat iaculis. Etiam maximus lorem a dui pellentesque eleifend. Mauris porta felis vel lectus volutpat, vel elementum lectus gravida. Sed non tincidunt diam, at semper odio. Vivamus tincidunt dolor a neque imperdiet, sed rhoncus nisl rhoncus. Proin et sollicitudin lorem, ac vulputate massa. Praesent id augue nec quam sagittis bibendum vel vitae mi.</p>
+
+            <p>Donec purus nulla, finibus nec placerat ut, fermentum ut odio. Vestibulum dignissim elementum quam, quis volutpat leo euismod at. Etiam finibus tortor eget metus faucibus rhoncus. Nullam consequat, leo nec molestie viverra, sem libero iaculis purus, et imperdiet tortor augue at arcu. Donec fringilla justo sit amet nisi vehicula rutrum at in libero. Aliquam gravida at libero consectetur maximus. Praesent congue bibendum massa. In suscipit nulla eu ex laoreet maximus. Duis aliquam neque at consectetur suscipit. Aenean mattis arcu sed erat rhoncus, ut scelerisque urna mattis. In accumsan tristique nulla, eu aliquet ante placerat in. Morbi vulputate diam in auctor molestie. Suspendisse sollicitudin ac diam non suscipit. Nullam porta neque lorem, sed rhoncus felis molestie ac. Suspendisse scelerisque augue in sapien consectetur commodo.</p>
+        </section>
+
         <section>
             <div id="profile-detail" class="list-group"></div>
         </section>
 
     </main>
+
+    <footer>
+        &copy; Copyright 2017 <a href="https://gointo.software">GoInto, LLC</a>
+        -
+        <a href="https://github.com/gointollc/doto/">doto is open source softare</a>
+    </footer>
 
     <script type="text/javascript" src="{% static 'js/jquery-1.11.2.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/jquery.cookie.js' %}"></script>
